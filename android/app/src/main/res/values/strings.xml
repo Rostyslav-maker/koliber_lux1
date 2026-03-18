@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="google_app_id" translatable="false">1:521923515909:android:0577f88f28b29e0032e6c</string>
+    <string name="google_api_key" translatable="false">AIzaSyC98WNJ4SRwEeN_BrxnwkshUpgTxx29T-U</string>
+    <string name="google_messaging_sender_id" translatable="false">521923515909</string>
+    <string name="project_id" translatable="false">lojalnosc-app</string>
+</resources>

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "521923515909",
+    "project_id": "lojalnosc-app",
+    "storage_bucket": "lojalnosc-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:521923515909:android:eb838a822e50a4ddd32e6c",
+        "android_client_info": {
+          "package_name": "com.example.lojalnosc_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXp4awGcRKKjikO_sBL2f87kg5-dUPIPE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:521923515909:android:85924d5d6189d0a3d32e6c",
+        "android_client_info": {
+          "package_name": "com.koliberlux.KoliberLux"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXp4awGcRKKjikO_sBL2f87kg5-dUPIPE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
