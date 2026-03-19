@@ -1,33 +1,22 @@
-# 1. Ręczne zdefiniowanie wersji SDK, której szuka cloud_firestore
-# To naprawia błąd: "Unsupported version requirements. [nil] is not valid"
 def firebase_sdk_version
   '11.0.0'
 end
 
-# 2. Ustawienie platformy na iOS 15.0
 platform :ios, '15.0'
 
 target 'Runner' do
   use_frameworks!
   use_modular_headers!
 
-  # 3. Bezpośrednie wskazanie bibliotek Firebase z wersją
-  # Dzięki temu skrypt nie musi szukać pomocników Fluttera, których nie masz na Windowsie
   pod 'Firebase/Firestore', firebase_sdk_version
   pod 'Firebase/Auth', firebase_sdk_version
   pod 'Firebase/Core', firebase_sdk_version
-
-  # Tutaj Codemagic automatycznie doinstaluje resztę wtyczek z Twojego pubspec.yaml
 end
 
-# 4. Sekcja naprawcza wykonywana po instalacji (post_install)
 post_install do |installer|
   installer.pods_project.targets.each do |target|
-    # Standardowe ustawienia Fluttera
     target.build_configurations.each do |config|
-      # Wymuszenie wersji iOS 15.0 dla każdej zewnętrznej biblioteki
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
-      # Wyłączenie Bitcode (częsty wymóg przy nowym Firebase)
       config.build_settings['ENABLE_BITCODE'] = 'NO'
     end
   end
