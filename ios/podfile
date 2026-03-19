@@ -1,9 +1,6 @@
-# Podfile dla Koliber Lux
 platform :ios, '15.0'
 
-# Nie zmieniaj nic poniżej tego wiersza
-prepare_command "ruby -e \"require 'fileutils'; FileUtils.touch('Flutter/Generated.xcconfig') unless File.exists?('Flutter/Generated.xcconfig')\""
-
+# Ten fragment automatycznie wczytuje konfigurację Fluttera
 target 'Runner' do
   use_frameworks!
   use_modular_headers!
@@ -14,8 +11,9 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
+    
+    # To wymusza iOS 15.0 na wszystkich wtyczkach, rozwiązując błąd Firebase
     target.build_configurations.each do |config|
-      # Wymuszenie wersji 15.0 dla wszystkich bibliotek (np. cloud_firestore)
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
     end
   end
