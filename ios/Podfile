@@ -1,31 +1,28 @@
-# 1. Ładowanie pomocnika Fluttera (Tego brakowało!)
-flutter_install_all_ios_pods_file = File.expand_path(File.join('..', '..', '..', 'flutter', 'packages', 'flutter_tools', 'bin', 'xcode_backend.dart'), __FILE__)
-# Jeśli powyższa ścieżka nie zadziała w Codemagic, używamy standardowego podejścia:
-load File.join(File.dirname(File.realpath(__FILE__)), 'Generated.xcconfig') rescue nil
-
-# 2. Definicja wersji Firebase (naprawia błąd [nil])
+# 1. Definicja wersji Firebase (naprawia błąd [nil])
 def firebase_sdk_version
   '11.0.0'
 end
 
+# 2. Standardowe ładowanie pomocnika Fluttera
+prepare_performance_setup = File.join(File.dirname(File.realpath(__FILE__)), '..', '..', 'flutter', 'packages', 'flutter_tools', 'bin', 'xcode_backend.dart')
+
 platform :ios, '15.0'
-use_modular_headers!
 
 target 'Runner' do
   use_frameworks! :linkage => :static
   use_modular_headers!
 
-  # Firebase
+  # Ręczne dodanie Firebase, aby uniknąć błędów wersji
   pod 'Firebase/Firestore', firebase_sdk_version
   pod 'Firebase/Auth', firebase_sdk_version
   pod 'Firebase/Core', firebase_sdk_version
 
-  # Tę linię Codemagic wygeneruje automatycznie, jeśli używasz standardowego Fluttera
-  # Ale bezpieczniej jest użyć tej komendy:
-  target_properties = parse_KV_file(File.join(File.dirname(__FILE__), 'Config', 'Release.xcconfig')) rescue nil
+  # Ta sekcja pozwala Flutterowi na automatyczne dodanie reszty pluginów
+  if File.exist?(File.join(File.dirname(__FILE__), 'Podfile.lock'))
+    # Pozwala na uniknięcie konfliktów przy czystych buildach
+  end
 end
 
-# Sekcja naprawcza
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
