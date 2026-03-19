@@ -1,3 +1,9 @@
+# Ścieżka do skryptu pomocniczego Fluttera
+flutter_install_all_ios_pods_helper = File.expand_path(File.join('..', '..', 'flutter', 'packages', 'flutter_tools', 'bin', 'xcode_backend.dart'), __FILE__)
+
+# Jeśli budujesz na Codemagic, ścieżka może być inna, dlatego używamy standardowego mechanizmu:
+load File.join(File.dirname(File.realpath(__FILE__)), 'Flutter', 'podhelper.rb')
+
 platform :ios, '15.0'
 
 target 'Runner' do
