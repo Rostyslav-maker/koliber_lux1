@@ -1,6 +1,7 @@
+# Ustawienie globalnej platformy na iOS 15
 platform :ios, '15.0'
 
-# Ten fragment automatycznie wczytuje konfigurację Fluttera
+# Standardowa konfiguracja Fluttera
 target 'Runner' do
   use_frameworks!
   use_modular_headers!
@@ -8,11 +9,11 @@ target 'Runner' do
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
 
+# Naprawa wersji dla poszczególnych wtyczek (np. Firestore)
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
     
-    # To wymusza iOS 15.0 na wszystkich wtyczkach, rozwiązując błąd Firebase
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
     end
