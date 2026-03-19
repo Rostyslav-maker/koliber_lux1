@@ -1,28 +1,41 @@
+# 1. Ręczne zdefiniowanie wersji SDK, której szuka cloud_firestore
+# To naprawia błąd: "Unsupported version requirements. [nil] is not valid"
 def firebase_sdk_version
   '11.0.0'
 end
 
+# 2. Ustawienie platformy na iOS 15.0
 platform :ios, '15.0'
 
 # Wymuszamy nagłówki modułowe globalnie
 use_modular_headers!
 
 target 'Runner' do
-  use_frameworks!
+  # 3. Statyczne linkowanie - rozwiązuje błąd "Module not found"
+  use_frameworks! :linkage => :static
   use_modular_headers!
 
-  # Kluczowe biblioteki
+  # 4. Bezpośrednie wskazanie bibliotek Firebase z wersją
   pod 'Firebase/Firestore', firebase_sdk_version
   pod 'Firebase/Auth', firebase_sdk_version
   pod 'Firebase/Core', firebase_sdk_version
+
+  # Pozostałe wtyczki Fluttera zostaną dodane automatycznie przez skrypt poniżej
+  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
 
+# 5. Sekcja naprawcza wykonywana po instalacji (post_install)
 post_install do |installer|
   installer.pods_project.targets.each do |target|
+    flutter_additional_ios_build_settings(target)
+    
     target.build_configurations.each do |config|
+      # Wymuszenie wersji iOS 15.0 dla każdej zewnętrznej biblioteki
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+      # Wyłączenie Bitcode (wymóg przy nowym Firebase)
       config.build_settings['ENABLE_BITCODE'] = 'NO'
-      # Te flagi zmuszają Xcode do zobaczenia Firestore jako modułu
+      
+      # Flagi naprawiające błąd widoczności modułów w Xcode
       config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
       config.build_settings['DEFINES_MODULE'] = 'YES'
     end
