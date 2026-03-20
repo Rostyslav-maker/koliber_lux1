@@ -4,14 +4,15 @@ workflows:
     max_build_duration: 60
     instance_type: mac_mini_m2
     environment:
-      flutter: 3.24.5 # Upewnij się, że to Twoja wersja (widziałem 3.x w logach)
+      # Zmieniamy na 'stable', aby Codemagic zawsze brał najnowszy stabilny build
+      # Jeśli Twoje SDK wymaga 3.11+, Codemagic pobierze odpowiednią wersję
+      flutter: stable 
       xcode: latest
-      groups:
-        - firebase_credentials # Jeśli używasz zmiennych środowiskowych
     scripts:
-      - name: Set up local.properties
-        script: | 
-          echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
+      - name: Flutter upgrade and doctor
+        script: |
+          flutter upgrade
+          flutter doctor
       - name: Flutter pub get
         script: |
           flutter pub get
@@ -22,8 +23,10 @@ workflows:
           rm -rf build
           rm -f Podfile.lock
           pod install --repo-update
+          cd ..
       - name: Build iOS
         script: |
+          # Budujemy bez podpisywania, żeby sprawdzić samą kompilację
           flutter build ios --release --no-codesign -t lib/main.dart
     artifacts:
       - build/ios/iphoneos/*.app
