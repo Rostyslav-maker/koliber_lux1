@@ -2,15 +2,19 @@ workflows:
   ios-workflow:
     name: iOS Build Workflow
     environment:
-      flutter: 3.27.0  # Stabilna wersja wspierająca Twoje biblioteki
+      flutter: 3.27.0
       xcode: latest
     scripts:
-      - name: Flutter pub get
-        script: flutter pub get
+      - name: Flutter clean and get
+        script: |
+          flutter pub cache clean --force
+          flutter clean
+          flutter pub get
       - name: Pod install
         script: |
           cd ios
-          pod install --repo-update
+          pod repo update
+          pod install
       - name: Build iOS
         script: |
           flutter build ios --release --no-codesign -t lib/main.dart
