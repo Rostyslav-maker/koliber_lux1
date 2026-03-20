@@ -2,7 +2,7 @@ workflows:
   ios-workflow:
     name: iOS Build Workflow
     environment:
-      flutter: 3.24.5  # Stabilna wersja wspierająca Twoje biblioteki
+      flutter: 3.27.0  # Stabilna wersja wspierająca Twoje biblioteki
       xcode: latest
     scripts:
       - name: Flutter pub get
