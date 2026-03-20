@@ -4,22 +4,46 @@ workflows:
     environment:
       flutter: 3.27.0
       xcode: latest
+      groups:
+        - google_play_credentials # Opcjonalne, jeśli masz skonfigurowane zmienne
     scripts:
-      - name: Flutter clean and get
+      - name: Hard Reset and Pub Get
         script: |
-          flutter pub cache clean --force
+          # 1. Całkowite czyszczenie starych powiązań i cache
+          echo "Czyszczenie projektu..."
           flutter clean
+          
+          # Usuwamy pliki, które mogą blokować instalację Podów
+          rm -rf ios/Pods
+          rm -rf ios/Podfile.lock
+          rm -rf ios/.symlinks
+          
+          # Wymuszamy odświeżenie cache bibliotek
+          flutter pub cache clean --force
+          
+          echo "Pobieranie paczek Flutter..."
           flutter pub get
+
       - name: Pod install
         script: |
+          # 2. Instalacja zależności natywnych iOS
           cd ios
+          echo "Aktualizacja repozytoriów CocoaPods..."
           pod repo update
-          pod install
+          
+          echo "Instalacja Podów..."
+          pod install --repo-update
+
       - name: Build iOS
         script: |
+          # 3. Budowanie aplikacji (bez certyfikatów - do testów/podglądu)
+          echo "Rozpoczynanie budowania pliku .app..."
           flutter build ios --release --no-codesign -t lib/main.dart
+
     artifacts:
+      # Ścieżka do wygenerowanej aplikacji
       - build/ios/iphoneos/*.app
+    
     publishing:
       email:
         recipients:
