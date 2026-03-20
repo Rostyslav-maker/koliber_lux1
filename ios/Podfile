@@ -1,23 +1,19 @@
-platform :ios, '15.0'
-
-# 1. DEFINIUJEMY WERSJĘ SDK GLOBALNIE (To rozwiązuje błąd [nil])
 def firebase_sdk_version
   '11.0.0'
 end
 
-# 2. Ładujemy standardowe skrypty Fluttera
+platform :ios, '15.0'
+
 require File.expand_path(File.join('..', 'Flutter', 'podhelper.rb'), __FILE__)
 
 target 'Runner' do
   use_frameworks! :linkage => :static
   use_modular_headers!
 
-  # 3. Ręczne wymuszenie wersji dla głównych modułów
   pod 'Firebase/Auth', firebase_sdk_version
   pod 'Firebase/Firestore', firebase_sdk_version
   pod 'Firebase/Core', firebase_sdk_version
 
-  # 4. Automatyczna instalacja reszty pluginów z pubspec.yaml
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
 
@@ -30,9 +26,6 @@ post_install do |installer|
       config.build_settings['SWIFT_VERSION'] = '5.0'
       config.build_settings['ENABLE_BITCODE'] = 'NO'
       config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
-      
-      # Naprawa błędu "Double-quoted include" w Firebase
-      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', 'PB_FIELD_32BIT=1', 'PB_NO_PACKED_STRUCTS=1']
     end
   end
 end
