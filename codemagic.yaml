@@ -1,0 +1,27 @@
+workflows:
+  ios-simulator:
+    name: iOS Simulator Build (FREE)
+    
+    environment:
+      flutter: stable
+
+    scripts:
+      - name: Flutter clean
+        script: flutter clean
+
+      - name: Get packages
+        script: flutter pub get
+
+      - name: Fix CocoaPods
+        script: |
+          cd ios
+          rm -rf Pods Podfile.lock
+          pod deintegrate || true
+          pod install --repo-update
+          cd ..
+
+      - name: Build iOS Simulator
+        script: flutter build ios --simulator
+
+    artifacts:
+      - build/ios/iphonesimulator/*.app
