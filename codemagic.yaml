@@ -1,27 +1,33 @@
 workflows:
-  ios-simulator:
-    name: iOS Simulator Build (FREE)
-    
+  ios-workflow:
+    name: iOS Build Workflow
+    max_build_duration: 60
+    instance_type: mac_mini_m2
     environment:
-      flutter: stable
-
+      flutter: 3.24.5 # Upewnij się, że to Twoja wersja (widziałem 3.x w logach)
+      xcode: latest
+      groups:
+        - firebase_credentials # Jeśli używasz zmiennych środowiskowych
     scripts:
-      - name: Flutter clean
-        script: flutter clean
-
-      - name: Get packages
-        script: flutter pub get
-
-      - name: Fix CocoaPods
+      - name: Set up local.properties
+        script: | 
+          echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
+      - name: Flutter pub get
+        script: |
+          flutter pub get
+      - name: Install CocoaPods and fix Firebase
         script: |
           cd ios
-          rm -rf Pods Podfile.lock
-          pod deintegrate || true
+          rm -rf Pods
+          rm -rf build
+          rm -f Podfile.lock
           pod install --repo-update
-          cd ..
-
-      - name: Build iOS Simulator
-        script: flutter build ios --simulator
-
+      - name: Build iOS
+        script: |
+          flutter build ios --release --no-codesign -t lib/main.dart
     artifacts:
-      - build/ios/iphonesimulator/*.app
+      - build/ios/iphoneos/*.app
+    publishing:
+      email:
+        recipients:
+          - kontakt@koliberlux.pl
