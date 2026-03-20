@@ -1,32 +1,18 @@
 workflows:
   ios-workflow:
     name: iOS Build Workflow
-    max_build_duration: 60
-    instance_type: mac_mini_m2
     environment:
-      # Zmieniamy na 'stable', aby Codemagic zawsze brał najnowszy stabilny build
-      # Jeśli Twoje SDK wymaga 3.11+, Codemagic pobierze odpowiednią wersję
-      flutter: stable 
+      flutter: 3.24.5  # Stabilna wersja wspierająca Twoje biblioteki
       xcode: latest
     scripts:
-      - name: Flutter upgrade and doctor
-        script: |
-          flutter upgrade
-          flutter doctor
       - name: Flutter pub get
-        script: |
-          flutter pub get
-      - name: Install CocoaPods and fix Firebase
+        script: flutter pub get
+      - name: Pod install
         script: |
           cd ios
-          rm -rf Pods
-          rm -rf build
-          rm -f Podfile.lock
           pod install --repo-update
-          cd ..
       - name: Build iOS
         script: |
-          # Budujemy bez podpisywania, żeby sprawdzić samą kompilację
           flutter build ios --release --no-codesign -t lib/main.dart
     artifacts:
       - build/ios/iphoneos/*.app
