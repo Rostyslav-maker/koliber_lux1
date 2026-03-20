@@ -1,6 +1,10 @@
+# 1. Definicja na samym szczycie dla zewnętrznych podspeców
 def firebase_sdk_version
   '11.0.0'
 end
+
+# 2. Globalna zmienna Ruby (dodatkowe zabezpieczenie)
+$FirebaseSDKVersion = '11.0.0'
 
 platform :ios, '15.0'
 
@@ -10,9 +14,10 @@ target 'Runner' do
   use_frameworks! :linkage => :static
   use_modular_headers!
 
-  pod 'Firebase/Auth', firebase_sdk_version
-  pod 'Firebase/Firestore', firebase_sdk_version
-  pod 'Firebase/Core', firebase_sdk_version
+  # 3. Wymuszenie wersji bezpośrednio
+  pod 'Firebase/Auth', '11.0.0'
+  pod 'Firebase/Firestore', '11.0.0'
+  pod 'Firebase/Core', '11.0.0'
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
@@ -25,7 +30,6 @@ post_install do |installer|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
       config.build_settings['SWIFT_VERSION'] = '5.0'
       config.build_settings['ENABLE_BITCODE'] = 'NO'
-      config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
     end
   end
 end
