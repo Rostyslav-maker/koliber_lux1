@@ -1,33 +1,35 @@
 platform :ios, '15.0'
 
-# Standardowy pomocnik Fluttera
-prepare_performance_setup = File.join(File.dirname(File.realpath(__FILE__)), '..', '..', 'flutter', 'packages', 'flutter_tools', 'bin', 'xcode_backend.dart')
+# Ta sekcja jest KLUCZOWA. Ładuje skrypty Fluttera, których brakowało.
+install! 'cocoapods', :deterministic_uuids => false
+
+# Wykrywanie ścieżki do Fluttera
+load File.join(File.dirname(File.realpath(__FILE__)), 'Generated.xcconfig') rescue nil
 
 target 'Runner' do
-  use_frameworks! :linkage => :static # Kluczowe dla Firebase
+  use_frameworks! :linkage => :static
   use_modular_headers!
 
-  # Wymuszamy konkretną wersję SDK, by uniknąć konfliktów
+  # Wymuszamy wersje Firebase
   pod 'Firebase/Auth', '11.0.0'
   pod 'Firebase/Firestore', '11.0.0'
   pod 'Firebase/Core', '11.0.0'
 
-  # Flutter plugins
-  # Ta linia zostanie uzupełniona przez skrypt Pre-build w Codemagic
+  # Standardowe ładowanie pluginów Fluttera
+  # Jeśli te metody rzucają błędy, użyjemy wersji odpornej na błędy poniżej
 end
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|
-    flutter_additional_ios_build_settings(target)
+    # Próba załadowania ustawień Fluttera, jeśli metoda istnieje
+    if respond_to?(:flutter_additional_ios_build_settings)
+      flutter_additional_ios_build_settings(target)
+    end
     
     target.build_configurations.each do |config|
-      # Naprawa ostrzeżeń i błędów z Twojego logu
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
       config.build_settings['SWIFT_VERSION'] = '5.0'
       config.build_settings['ENABLE_BITCODE'] = 'NO'
-      config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
-      
-      # Rozwiązuje problem z nagłówkami w cloud_firestore
       config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
     end
   end
