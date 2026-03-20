@@ -1,30 +1,41 @@
 platform :ios, '15.0'
 
-# Ta sekcja jest KLUCZOWA. Ładuje skrypty Fluttera, których brakowało.
-install! 'cocoapods', :deterministic_uuids => false
+# Ta linia ładuje skrypty pomocnicze Fluttera, które automatycznie
+# zajmą się Generated.xcconfig i innymi zależnościami.
+podhelper_path = File.join(File.dirname(File.realpath(__FILE__)), '..', '..', 'flutter', 'packages', 'flutter_tools', 'bin', 'xcode_backend.dart')
 
-# Wykrywanie ścieżki do Fluttera
-load File.join(File.dirname(File.realpath(__FILE__)), 'Generated.xcconfig') rescue nil
+# Jeśli powyższa ścieżka nie zadziała w Twoim środowisku, 
+# używamy standardowego podejścia Fluttera:
+def flutter_root
+  generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
+  unless File.exist?(generated_xcode_build_settings_path)
+    raise "#{generated_xcode_build_settings_path} must exist. If you're running pod install manually, make sure flutter pub get has been executed."
+  end
+
+  File.foreach(generated_xcode_build_settings_path) do |line|
+    matches = line.match(/\AFLUTTER_ROOT=(.*)\z/)
+    return matches[1] if matches
+  end
+  raise "FLUTTER_ROOT not found in #{generated_xcode_build_settings_path}. Try deleting Generated.xcconfig post-flutter-pub-get"
+end
+
+require File.expand_path(File.join('..', 'Flutter', 'podhelper.rb'), __FILE__)
 
 target 'Runner' do
   use_frameworks! :linkage => :static
   use_modular_headers!
 
-  # Wymuszamy wersje Firebase
+  # Firebase SDK
   pod 'Firebase/Auth', '11.0.0'
   pod 'Firebase/Firestore', '11.0.0'
   pod 'Firebase/Core', '11.0.0'
 
-  # Standardowe ładowanie pluginów Fluttera
-  # Jeśli te metody rzucają błędy, użyjemy wersji odpornej na błędy poniżej
+  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|
-    # Próba załadowania ustawień Fluttera, jeśli metoda istnieje
-    if respond_to?(:flutter_additional_ios_build_settings)
-      flutter_additional_ios_build_settings(target)
-    end
+    flutter_additional_ios_build_settings(target)
     
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
