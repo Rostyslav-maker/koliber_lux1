@@ -1,44 +1,56 @@
 workflows:
   ios-workflow:
-    name: iOS Build Workflow
+    name: Koliber Lux iOS Build
+    max_build_duration: 60
+    instance_type: mac_mini_m1
     environment:
       flutter: 3.27.0
       xcode: latest
+      groups:
+        - google_play_credentials # Jeśli używasz, jeśli nie - usuń tę linię
     scripts:
-      - name: Hard Reset and Pub Get
+      - name: Hard Clean and Environment Setup
         script: |
-          echo "Czyszczenie projektu i cache..."
+          echo "Rozpoczynam głębokie czyszczenie projektu..."
           flutter clean
+          
+          # Usuwanie wszystkich artefaktów iOS, które mogą powodować błędy ścieżek
           rm -rf ios/Pods
           rm -rf ios/Podfile.lock
           rm -rf ios/.symlinks
-          # Usuwamy specyficzny cache pub, aby wymusić pobranie nowej wersji z overrides
-          rm -rf ~/.pub-cache/hosted/pub.dev/google_sign_in_ios*
+          rm -rf ~/Library/Developer/Xcode/DerivedData
           
+          # Pobieranie paczek Fluttera
           flutter pub get
-
-      - name: Pre-build fix for Google Sign In
-        script: |
-          # Wymuszamy generowanie plików konfiguracyjnych iOS
+          
+          # WYMUSZENIE pobrania plików binarnych i podspec dla iOS
+          # To rozwiązuje problem "No podspec found"
           flutter precache --ios
-          cd ios
-          # Czyścimy cache CocoaPods dla tej konkretnej wtyczki
-          pod cache clean google_sign_in_ios --all
 
-      - name: Pod install
+      - name: CocoaPods Installation
         script: |
           cd ios
-          # Instalacja z wymuszeniem aktualizacji repozytoriów
+          
+          # Aktualizacja repozytorium CocoaPods (trwa chwilę, ale jest niezbędna)
+          pod repo update
+          
+          # Instalacja z wymuszeniem czystego startu
+          # Jeśli masz błąd 'google_sign_in_ios', ta komenda spróbuje go naprawić
           pod install --repo-update
 
-      - name: Build iOS
+      - name: Flutter Build iOS
         script: |
-          flutter build ios --release --no-codesign -t lib/main.dart
+          # Budowanie wersji release bez podpisywania kodu (do testów/eksportu .app)
+          flutter build ios --release --no-codesign
 
     artifacts:
       - build/ios/iphoneos/*.app
-    
+      - /tmp/xcodebuild_logs/*.log
+
     publishing:
       email:
         recipients:
           - kontakt@koliberlux.pl
+        notify:
+          success: true
+          failure: true
