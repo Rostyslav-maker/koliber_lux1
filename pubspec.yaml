@@ -29,9 +29,9 @@ dependencies:
   
   # Nawigacja i komunikacja
   go_router: ^14.0.0
-  http: ^1.6.0
+  http: ^1.1.0
 
-  # Autentykacja i Firebase (Wersje stabilne dla Dart 3.6.0)
+  # Autentykacja i Firebase
   google_sign_in: 6.2.1
   sign_in_with_apple: ^6.1.1
   flutter_facebook_auth: ^7.0.1
@@ -43,13 +43,11 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  # Wersja 5.0.0 nie blokuje buildu na Dart 3.6.0
   flutter_lints: ^5.0.0
+
+# TO JEST KLUCZOWA SEKCJA DLA CODEMAGIC:
+dependency_overrides:
+  google_sign_in_ios: 5.7.7
 
 flutter:
   uses-material-design: true
-
-  # Jeśli masz pliki w assets, upewnij się, że ten folder istnieje:
-  # assets:
-  #   - assets/images/
