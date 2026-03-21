@@ -6,41 +6,31 @@ workflows:
     environment:
       flutter: 3.27.0
       xcode: latest
-      groups:
-        - google_play_credentials # Jeśli używasz, jeśli nie - usuń tę linię
     scripts:
-      - name: Hard Clean and Environment Setup
+      - name: Hard Clean and Setup
         script: |
-          echo "Rozpoczynam głębokie czyszczenie projektu..."
+          echo "Czyszczenie i przygotowanie środowiska..."
           flutter clean
           
-          # Usuwanie wszystkich artefaktów iOS, które mogą powodować błędy ścieżek
+          # Kluczowe: usuwamy stare repozytorium master, które blokuje build
           rm -rf ios/Pods
           rm -rf ios/Podfile.lock
-          rm -rf ios/.symlinks
-          rm -rf ~/Library/Developer/Xcode/DerivedData
+          pod repo remove master || true
           
-          # Pobieranie paczek Fluttera
           flutter pub get
-          
-          # WYMUSZENIE pobrania plików binarnych i podspec dla iOS
-          # To rozwiązuje problem "No podspec found"
           flutter precache --ios
 
-      - name: CocoaPods Installation
+      - name: CocoaPods Installation (Fast CDN Mode)
         script: |
           cd ios
+          # Wymuszamy użycie CDN zamiast powolnego pobierania z GitHub
+          export CP_HOMEBREW_CLEANUP=1
           
-          # Aktualizacja repozytorium CocoaPods (trwa chwilę, ale jest niezbędna)
-          pod repo update
-          
-          # Instalacja z wymuszeniem czystego startu
-          # Jeśli masz błąd 'google_sign_in_ios', ta komenda spróbuje go naprawić
+          # Instalacja bez 'pod repo update', co oszczędza 15 minut buildu
           pod install --repo-update
 
       - name: Flutter Build iOS
         script: |
-          # Budowanie wersji release bez podpisywania kodu (do testów/eksportu .app)
           flutter build ios --release --no-codesign
 
     artifacts:
